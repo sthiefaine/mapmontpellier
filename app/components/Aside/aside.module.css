@@ -3,5 +3,10 @@
   padding: 2rem;
   width: 12vw;
   min-width: 300px;
+}
 
+@media screen and (max-width: 768px) {
+  .aside {
+    display: none;
+  }
 }

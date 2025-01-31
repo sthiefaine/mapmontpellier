@@ -32,19 +32,17 @@ export const MapDisplay = () => {
     // Initialisation de la carte
     mapRef.current = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: "./liberty",
+      style: `${process.env.VERCEL_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL}/liberty.json`,
       center: [currentBat.lng, currentBat.lat], // position de départ [lng, lat]
       zoom: 17.5,
       maxBounds: [bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]],
     });
 
     mapRef.current.on("click", (e) => {
-
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const coordinates = [e.lngLat.lng, e.lngLat.lat];
 
       const features = mapRef?.current?.queryRenderedFeatures(e.point);
-    
       console.log("Clicked features:", features);
       console.log("click", e);
     });
@@ -65,10 +63,10 @@ export const MapDisplay = () => {
                 geometry: {
                   coordinates: [
                     [
-                      [3.8741489426789144, 43.61282847126523], 
-                      [3.8740996828948084, 43.61292794075143], 
-                      [3.8740012996629787, 43.61290681289583], 
-                      [3.8737439455316007, 43.61368578967745], 
+                      [3.8741489426789144, 43.61282847126523],
+                      [3.8740996828948084, 43.61292794075143],
+                      [3.8740012996629787, 43.61290681289583],
+                      [3.8737439455316007, 43.61368578967745],
                       [3.8741195405522433, 43.613756930276196],
                       [3.8744185900403636, 43.61300338007399],
                       [3.874331902224583, 43.612856686351904],
@@ -104,18 +102,12 @@ export const MapDisplay = () => {
         mapRef.current.remove();
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-      <section
-        className={styles.section}
-      >
-        <div
-          id="map"
-          className={styles.map}
-          ref={mapContainerRef}
-        />
-      </section>
+    <section className={styles.section}>
+      <div id="map" className={styles.map} ref={mapContainerRef} />
+    </section>
   );
 };
