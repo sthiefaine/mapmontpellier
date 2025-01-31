@@ -1,0 +1,11 @@
+.section {
+  width: 100%;
+  background-color: bisque ;
+  flex-grow: 1;
+}
+
+.map {
+  background-color: tomato;
+  height: 100%;
+  width: 100%;
+}
