@@ -3,7 +3,7 @@
 import { Aside } from "./components/Aside/Aside";
 import { Footer } from "./components/Footer/Footer";
 import { Header } from "./components/Header/Header";
-import { MapDisplay } from "./components/MapDisplay/MapDisplay";
+import { MapDisplay } from "./components/Map/MapDisplay/MapDisplay";
 
 const getData = async () => {
   const res = await fetch("https://tiles.openfreemap.org/styles/liberty");
@@ -20,6 +20,7 @@ export default async function Home() {
       <Header />
       <main>
         <MapDisplay style={data} />
+        
         <Aside />
       </main>
       <Footer />

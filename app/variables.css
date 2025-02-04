@@ -24,10 +24,10 @@ html[style*="color-scheme: dark"] {
 }
 
 /* Tailwind */
-.bg-current {
+.bg-current-inv {
   @apply bg-[var(--background)];
 }
 
-.text-current {
+.text-current-inv {
   @apply text-[var(--foreground)];
 }
