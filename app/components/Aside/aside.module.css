@@ -1,5 +1,5 @@
 .aside {
-  background-color: #2274b7;
+  background-color: var(--color-secondary);
   padding: 2rem;
   width: 12vw;
   min-width: 300px;

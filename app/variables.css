@@ -1,0 +1,33 @@
+/* Variables idees */
+:root {
+  --color-primary: #232323;
+  --color-secondary: #4a4a4a;
+  --color-accent-1: rgb(0, 170, 242);
+  --color-accent-2: rgb(247, 205, 27); /* Jonquille */
+  --color-accent-3: rgb(7, 182, 130); /* Vert menthe */
+  --box-shadow-1: 0 0 6px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Gestion de l'attribut `style` avec next-themes */
+html[style*="color-scheme: light"] {
+  --background: #ededed;
+  --foreground: #171717;
+  --color-primary: #e7e6e6;
+  --color-secondary: #cccccc;
+}
+
+html[style*="color-scheme: dark"] {
+  --background: #171717;
+  --foreground: #ededed;
+  --color-primary: #232323;
+  --color-secondary: #4a4a4a;
+}
+
+/* Tailwind */
+.bg-current {
+  @apply bg-[var(--background)];
+}
+
+.text-current {
+  @apply text-[var(--foreground)];
+}

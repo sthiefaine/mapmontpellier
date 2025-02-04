@@ -5,7 +5,11 @@ import styles from "./mapDisplay.module.css";
 import maplibregl from "maplibre-gl";
 import { useEffect, useRef } from "react";
 
-export const MapDisplay = () => {
+type MapDisplayProps = {
+  style: maplibregl.StyleSpecification;
+};
+
+export const MapDisplay = ({ style }: MapDisplayProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map>(null);
 
@@ -32,7 +36,7 @@ export const MapDisplay = () => {
     // Initialisation de la carte
     mapRef.current = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: `${process.env.VERCEL_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL}/liberty.json`,
+      style: (style),
       center: [currentBat.lng, currentBat.lat], // position de départ [lng, lat]
       zoom: 17.5,
       maxBounds: [bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]],
