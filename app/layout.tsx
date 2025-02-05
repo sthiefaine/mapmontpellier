@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./variables.css";
 import "./globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
+import '@hyvilo/maplibre-gl-draw/dist/maplibre-gl-draw.css'
 import { ThemeProvider } from "./components/Theme/theme-provider";
 
 const geistSans = Geist({

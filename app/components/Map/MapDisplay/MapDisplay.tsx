@@ -3,11 +3,19 @@
 import styles from "./mapDisplay.module.css";
 
 import maplibregl from "maplibre-gl";
-import { useEffect, useRef } from "react";
+import MapLibreDraw from "@hyvilo/maplibre-gl-draw";
+import type { LayerSpecification } from 'maplibre-gl';
+
+import { useEffect, useRef, useState } from "react";
+
 import { MapControls } from "../MapControls";
 import { useMapControlsStore } from "@/app/store/map/controls";
 import { useShallow } from "zustand/shallow";
-import { useMapStore } from "@/app/store/map/map";
+import { use3DToggle } from "@/app/hooks/use3DToggle";
+import { use3DLayerVisibility } from "@/app/hooks/use3DLayerVisibility";
+import { useDrawControl } from "@/app/hooks/useDrawControl";
+import { useDrawingMode } from "@/app/hooks/useDrawingMode";
+import { useFeatureRendering } from "@/app/hooks/useFeatureRendering";
 
 type MapDisplayProps = {
   style: maplibregl.StyleSpecification;
@@ -16,6 +24,8 @@ type MapDisplayProps = {
 export const MapDisplay = ({ style }: MapDisplayProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map>(null);
+  const drawRef = useRef<MapLibreDraw>(null);
+  const [mounted, setMounted] = useState(false);
 
   const { zoom, setZoom, setCenter, center } = useMapControlsStore(
     useShallow((state) => ({
@@ -26,21 +36,9 @@ export const MapDisplay = ({ style }: MapDisplayProps) => {
     }))
   );
 
-  const { polygons } = useMapStore(
-    useShallow((state) => ({
-      polygons: state.polygons,
-    }))
-  );
-
   const currentBat = {
     lng: 3.874074030919587,
     lat: 43.61323200950909,
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const MONTPELLIER_COORDINATES = {
-    lat: 43.606066,
-    lng: 3.878014,
   };
 
   // Don't move too far from the City
@@ -49,6 +47,17 @@ export const MapDisplay = ({ style }: MapDisplayProps) => {
     [4.018, 43.706],
   ];
 
+  // Activation des fonctionnalités
+  // Gestion de la 3D
+  use3DToggle(mapRef.current, mounted);
+  use3DLayerVisibility(mapRef.current, mounted);
+
+  // Gestion des événements de dessin
+  useDrawControl(mapRef.current, drawRef);
+  useDrawingMode(drawRef.current, mapRef.current);
+  useFeatureRendering(mapRef.current);
+
+  // Gestion de la navigation
   useEffect(() => {
     if (mapRef.current?.getZoom() === zoom) return;
     mapRef.current?.flyTo({ zoom: zoom });
@@ -58,11 +67,12 @@ export const MapDisplay = ({ style }: MapDisplayProps) => {
     if (center[0] === 0 && center[1] === 0) return;
     mapRef.current?.flyTo({ center: [currentBat.lng, currentBat.lat] });
     setCenter([0, 0]);
-  }, [center]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center, setCenter]);
 
+  // Initialisation de la carte
   useEffect(() => {
     if (!mapContainerRef?.current) return;
-
     // Initialisation de la carte
     mapRef.current = new maplibregl.Map({
       container: mapContainerRef.current,
@@ -70,6 +80,10 @@ export const MapDisplay = ({ style }: MapDisplayProps) => {
       center: [currentBat.lng, currentBat.lat], // position de départ [lng, lat]
       zoom: zoom,
       maxBounds: [bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]],
+    });
+
+    mapRef.current.on('load', () => {
+      setMounted(true);
     });
 
     mapRef.current.on("click", (e) => {
@@ -88,7 +102,6 @@ export const MapDisplay = ({ style }: MapDisplayProps) => {
 
     mapRef.current.resize();
 
-    // Nettoyage
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
@@ -96,34 +109,6 @@ export const MapDisplay = ({ style }: MapDisplayProps) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (!mapRef.current) return;
-
-    polygons.forEach((polygon) => {
-      const sourceId = `polygon-${polygon.id}`;
-      const layerId = `polygon-layer-${polygon.id}`;
-
-      if (!mapRef.current?.getSource(sourceId)) {
-        mapRef.current?.addSource(sourceId, {
-          type: "geojson",
-          data: polygon.geojson,
-        });
-      }
-
-      if (!mapRef.current?.getLayer(layerId)) {
-        mapRef.current?.addLayer({
-          id: layerId,
-          type: "fill",
-          source: sourceId,
-          paint: {
-            "fill-color": polygon.color,
-            "fill-opacity": 0.5,
-          },
-        });
-      }
-    });
-  }, [polygons]);
 
   return (
     <section className={styles.section}>

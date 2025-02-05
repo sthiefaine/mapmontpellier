@@ -1,34 +1,40 @@
 import { create } from "zustand";
 
-interface Polygon {
+export type FeatureType = "polygon" | "point";
+
+export interface MapFeature {
   id: string;
+  type: FeatureType;
   geojson: any;
   color: string;
 }
 
-interface StoreState {
-  polygons: Polygon[];
-  addPolygon: (geojson: any) => void;
-  updatePolygonColor: (id: string, color: string) => void;
+interface MapStoreState {
+  features: MapFeature[];
+  drawingMode: FeatureType | null;
+  addFeature: (feature: Omit<MapFeature, "id">) => void;
+  removeFeature: (id: string) => void;
+  setDrawingMode: (mode: FeatureType | null) => void;
+  updateFeatureColor: (id: string, color: string) => void;
 }
 
-export const useMapStore = create<StoreState>((set) => ({
-  polygons: [],
-  addPolygon: (geojson) =>
+export const useMapStore = create<MapStoreState>((set) => ({
+  features: [],
+  drawingMode: null,
+  addFeature: (feature) =>
     set((state) => ({
-      polygons: [
-        ...state.polygons,
-        {
-          id: Math.random().toString(),
-          geojson,
-          color: "red",
-        },
+      features: [
+        ...state.features,
+        { ...feature, id: Math.random().toString() },
       ],
     })),
-  updatePolygonColor: (id, color) =>
+  removeFeature: (id) =>
     set((state) => ({
-      polygons: state.polygons.map((poly) =>
-        poly.id === id ? { ...poly, color } : poly
-      ),
+      features: state.features.filter((f) => f.id !== id),
+    })),
+  setDrawingMode: (mode) => set({ drawingMode: mode }),
+  updateFeatureColor: (id, color) =>
+    set((state) => ({
+      features: state.features.map((f) => (f.id === id ? { ...f, color } : f)),
     })),
 }));

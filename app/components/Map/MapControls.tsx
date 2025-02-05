@@ -1,14 +1,16 @@
 import { useMapControlsStore } from "@/app/store/map/controls"
-import { Minus, Plus, Locate } from "lucide-react"
+import { Minus, Plus, Locate, Globe } from "lucide-react"
 import { useShallow } from "zustand/shallow"
 
 export function MapControls() {
 
-  const { zoom, setZoom, setCenter } = useMapControlsStore(
+  const { zoom, setZoom, setCenter, is3DEnabled, setIs3DEnabled } = useMapControlsStore(
     useShallow(state => ({
       zoom: state.zoom,
       setZoom: state.setZoom,
       setCenter: state.setCenter,
+      is3DEnabled: state.is3DEnabled,
+      setIs3DEnabled: state.setIs3DEnabled,
     }))
   )
 
@@ -40,6 +42,9 @@ export function MapControls() {
       </button>
       <button className="bg-current-inv text-current-inv rounded h-8 w-8 flex justify-center items-center" onClick={getGeolocation}>
         <Locate className="h-4 w-4" />
+      </button>
+      <button className="bg-current-inv text-current-inv rounded h-8 w-8 flex justify-center items-center" onClick={setIs3DEnabled}>
+        <Globe className="h-4 w-4" />
       </button>
     </div>
   )
