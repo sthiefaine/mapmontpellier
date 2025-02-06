@@ -4,7 +4,6 @@ import styles from "./mapDisplay.module.css";
 
 import maplibregl from "maplibre-gl";
 import MapLibreDraw from "@hyvilo/maplibre-gl-draw";
-import type { LayerSpecification } from 'maplibre-gl';
 
 import { useEffect, useRef, useState } from "react";
 
@@ -27,14 +26,17 @@ export const MapDisplay = ({ style }: MapDisplayProps) => {
   const drawRef = useRef<MapLibreDraw>(null);
   const [mounted, setMounted] = useState(false);
 
-  const { zoom, setZoom, setCenter, center } = useMapControlsStore(
-    useShallow((state) => ({
-      zoom: state.zoom,
-      center: state.center,
-      setZoom: state.setZoom,
-      setCenter: state.setCenter,
-    }))
-  );
+  const { zoom, setZoom, setCenter, center, pitch, setPitch } =
+    useMapControlsStore(
+      useShallow((state) => ({
+        zoom: state.zoom,
+        center: state.center,
+        setZoom: state.setZoom,
+        setCenter: state.setCenter,
+        pitch: state.pitch,
+        setPitch: state.setPitch,
+      }))
+    );
 
   const currentBat = {
     lng: 3.874074030919587,
@@ -64,6 +66,11 @@ export const MapDisplay = ({ style }: MapDisplayProps) => {
   }, [zoom]);
 
   useEffect(() => {
+    if (mapRef.current?.getPitch() === pitch) return;
+    mapRef.current?.setPitch(pitch);
+  }, [pitch]);
+
+  useEffect(() => {
     if (center[0] === 0 && center[1] === 0) return;
     mapRef.current?.flyTo({ center: [currentBat.lng, currentBat.lat] });
     setCenter([0, 0]);
@@ -79,25 +86,31 @@ export const MapDisplay = ({ style }: MapDisplayProps) => {
       style: style,
       center: [currentBat.lng, currentBat.lat], // position de départ [lng, lat]
       zoom: zoom,
+      pitch: pitch,
+      maxZoom: 18.5,
       maxBounds: [bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]],
     });
 
-    mapRef.current.on('load', () => {
+    mapRef.current.on("load", () => {
       setMounted(true);
     });
 
     mapRef.current.on("click", (e) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const coordinates = [e.lngLat.lng, e.lngLat.lat];
+      const features = mapRef.current?.queryRenderedFeatures(e.point, {
+        layers: ["building"], // Filtre uniquement les bâtiments
+      });
 
-      const features = mapRef?.current?.queryRenderedFeatures(e.point);
       console.log("Clicked features:", features);
-      console.log("click", e);
     });
 
     mapRef.current.on("zoom", () => {
       if (!mapRef.current) return;
       setZoom(mapRef?.current?.getZoom());
+    });
+
+    mapRef.current.on("pitch", () => {
+      if (!mapRef.current) return;
+      setPitch(mapRef?.current?.getPitch());
     });
 
     mapRef.current.resize();

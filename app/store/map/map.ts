@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware"
+import type {} from '@redux-devtools/extension'
 
 export type FeatureType = "polygon" | "point";
 
@@ -18,7 +20,10 @@ interface MapStoreState {
   updateFeatureColor: (id: string, color: string) => void;
 }
 
-export const useMapStore = create<MapStoreState>((set) => ({
+export const useMapStore = create<MapStoreState>() (
+  devtools(
+    persist(
+      (set) => ({
   features: [],
   drawingMode: null,
   addFeature: (feature) =>
@@ -37,4 +42,10 @@ export const useMapStore = create<MapStoreState>((set) => ({
     set((state) => ({
       features: state.features.map((f) => (f.id === id ? { ...f, color } : f)),
     })),
-}));
+      }),
+      {
+        name: "MapStore",
+      },
+    ),
+  ),
+);
